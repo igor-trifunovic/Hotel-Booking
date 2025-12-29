@@ -20,6 +20,7 @@ public class Reservation {
 
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
+    private double totalPrice;
 
     @ManyToOne
     @JoinColumn(name = "room_id")

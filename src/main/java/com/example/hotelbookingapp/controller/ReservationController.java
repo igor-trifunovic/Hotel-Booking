@@ -32,4 +32,16 @@ public class ReservationController {
     public List<Reservation> getReservationsByHotel(@RequestParam Long hotelId) {
         return reservationService.getReservationsByHotel(hotelId);
     }
+
+    @PutMapping("/{id}")
+    public Reservation updateReservation(@PathVariable Long id, @RequestBody ReservationRequest request) {
+        return reservationService.updateReservation
+                (id, request.getCheckInDate(), request.getCheckOutDate());
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteReservation(@PathVariable Long id) {
+        reservationService.deleteReservation(id);
+    }
+
 }
