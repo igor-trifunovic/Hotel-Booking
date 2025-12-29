@@ -25,4 +25,6 @@ public class Room {
     @JsonBackReference
     private Hotel hotel;
 
+
+
 }

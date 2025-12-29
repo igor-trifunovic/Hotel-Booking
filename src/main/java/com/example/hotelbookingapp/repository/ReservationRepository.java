@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+
     @Query("""
         SELECT r from Reservation r
         WHERE r.room.id = :roomId
@@ -20,4 +21,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         @Param("checkIn")LocalDate checkIn,
         @Param("checkOut")LocalDate checkOut
     );
+
+    List<Reservation> findByRoomHotelId(Long hotelId);
+
 }

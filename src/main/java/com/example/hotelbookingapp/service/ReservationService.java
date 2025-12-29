@@ -40,7 +40,7 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+    public List<Reservation> getReservationsByHotel(Long hotelId) {
+        return reservationRepository.findByRoomHotelId(hotelId);
     }
 }

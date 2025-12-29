@@ -22,8 +22,8 @@ public class RoomController {
     }
 
     @GetMapping
-    public List<Room> getRooms() {
-        return roomService.getAllRooms();
+    public List<Room> getRoomsByHotel(@RequestParam Long hotelId) {
+        return roomService.getRoomsByHotel(hotelId);
     }
 
 }

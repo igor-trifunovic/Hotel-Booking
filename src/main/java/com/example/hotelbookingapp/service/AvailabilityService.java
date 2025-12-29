@@ -23,7 +23,7 @@ public class AvailabilityService {
                     .filter(room -> reservationRepository
                     .findOverlappingReservations(
                             room.getId(), checkInDate, checkOutDate)
-                            .isEmpty())
+                    .isEmpty())
                     .toList();
     }
 

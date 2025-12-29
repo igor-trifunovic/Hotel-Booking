@@ -29,7 +29,7 @@ public class ReservationController {
     }
 
     @GetMapping
-    public List<Reservation> getReservations() {
-        return reservationService.getAllReservations();
+    public List<Reservation> getReservationsByHotel(@RequestParam Long hotelId) {
+        return reservationService.getReservationsByHotel(hotelId);
     }
 }
