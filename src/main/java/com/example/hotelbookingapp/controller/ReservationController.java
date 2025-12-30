@@ -19,13 +19,13 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<?> createReservation(@RequestBody ReservationRequest request) {
-        Reservation reservation = reservationService.createReservation(
+    public Reservation create(@RequestBody ReservationRequest request) {
+        return reservationService.createReservation(
+            request.getUserId(),
             request.getRoomId(),
             request.getCheckInDate(),
             request.getCheckOutDate()
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 
     @GetMapping
@@ -40,8 +40,8 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteReservation(@PathVariable Long id) {
-        reservationService.deleteReservation(id);
+    public void cancel(@PathVariable Long id, @RequestParam Long userId) {
+        reservationService.cancelReservation(id, userId);
     }
 
 }

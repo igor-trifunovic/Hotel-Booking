@@ -1,12 +1,12 @@
 package com.example.hotelbookingapp.service;
 
-import com.example.hotelbookingapp.model.Reservation;
-import com.example.hotelbookingapp.model.Room;
-import com.example.hotelbookingapp.repository.ReservationRepository;
-import com.example.hotelbookingapp.repository.RoomRepository;
+import com.example.hotelbookingapp.enums.ReservationStatus;
+import com.example.hotelbookingapp.model.*;
+import com.example.hotelbookingapp.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -16,16 +16,20 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final RoomRepository roomRepository;
+    private final UserRepository userRepository;
 
     // Creates a new reservation
     public Reservation createReservation
-            (Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
-        if (checkInDate.isAfter(checkOutDate) || checkInDate.equals(checkOutDate)) {
+            (Long userId, Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
+        if (reservationRepository.existsConflictingReservation(roomId, checkInDate, checkOutDate)) {
             throw new IllegalArgumentException("Invalid date range.");
         }
 
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         checkOverlapping(roomId, checkInDate, checkOutDate);
 
@@ -34,9 +38,12 @@ public class ReservationService {
         double totalReservationPrice = numberOfNights * room.getPrice();
 
         Reservation reservation = new Reservation();
+        reservation.setUser(user);
         reservation.setRoom(room);
         reservation.setCheckInDate(checkInDate);
         reservation.setCheckOutDate(checkOutDate);
+        reservation.setReservationStatus(ReservationStatus.CREATED);
+        reservation.setDateCreated(LocalDateTime.now());
         reservation.setTotalPrice(totalReservationPrice);
 
         return reservationRepository.save(reservation);
@@ -65,13 +72,17 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    //Deletes reservation
-    public void deleteReservation(Long reservationId) {
-        if (!reservationRepository.existsById(reservationId)) {
-            throw new RuntimeException("Reservation does not exist.");
+    //Cancels reservation
+    public void cancelReservation(Long reservationId, Long userId) {
+        Reservation reservation = reservationRepository
+                    .findById(reservationId)
+                    .orElseThrow();
+
+        if (!reservation.getUser().getId().equals(userId)) {
+            throw new SecurityException("Forbidden");
         }
 
-        reservationRepository.deleteById(reservationId);
+        reservation.setReservationStatus(ReservationStatus.CANCELLED);
     }
 
     // Checks if there are any reservations for the same period of time
