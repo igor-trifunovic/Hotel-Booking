@@ -74,10 +74,10 @@ public class ReservationService {
         reservationRepository.deleteById(reservationId);
     }
 
-    // Checks if there are reservation for the same period of time
+    // Checks if there are any reservations for the same period of time
     public void checkOverlapping(Long roomId, LocalDate checkIn, LocalDate checkOut) {
-        boolean exists = !reservationRepository.findOverlappingReservations
-                (roomId, checkIn, checkOut).isEmpty();
+        boolean exists = !reservationRepository.existsConflictingReservation
+                (roomId, checkIn, checkOut);
 
         if (exists) {
             throw new RuntimeException("Room is already booked for selected period.");

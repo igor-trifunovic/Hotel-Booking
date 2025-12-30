@@ -11,12 +11,13 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
     @Query("""
-        SELECT r from Reservation r
+        SELECT COUNT(r) > 0
+        from Reservation r
         WHERE r.room.id = :roomId
         AND r.checkOutDate > :checkIn
         AND r.checkInDate < :checkOut
     """)
-    List<Reservation> findOverlappingReservations(
+    boolean existsConflictingReservation(
         @Param("roomId") Long roomId,
         @Param("checkIn")LocalDate checkIn,
         @Param("checkOut")LocalDate checkOut

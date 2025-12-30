@@ -16,14 +16,13 @@ public class AvailabilityService {
     private final RoomRepository roomRepository;
 
     public List<Room> getAvailableRooms(
-            Long hotelId, LocalDate checkInDate, LocalDate checkOutDate) {
+            Long hotelId, LocalDate checkIn, LocalDate checkOut) {
         List<Room> rooms = roomRepository.findByHotelId(hotelId);
 
+        // Checks if there are overlapping reservations
         return rooms.stream()
-                    .filter(room -> reservationRepository
-                    .findOverlappingReservations(
-                            room.getId(), checkInDate, checkOutDate)
-                    .isEmpty())
+                    .filter(room -> !reservationRepository
+                    .existsConflictingReservation(room.getId(), checkIn, checkOut))
                     .toList();
     }
 
