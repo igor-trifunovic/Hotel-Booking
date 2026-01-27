@@ -2,18 +2,16 @@ package com.example.hotelbookingapp.model;
 
 import com.example.hotelbookingapp.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -29,10 +27,11 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Column
     @Enumerated(EnumType.STRING)
     private Role role;
+
 }

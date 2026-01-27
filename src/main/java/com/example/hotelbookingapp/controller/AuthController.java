@@ -1,4 +1,4 @@
-package com.example.hotelbookingapp.config;
+package com.example.hotelbookingapp.controller;
 
 import com.example.hotelbookingapp.dto.AuthResponse;
 import com.example.hotelbookingapp.dto.LoginRequest;
