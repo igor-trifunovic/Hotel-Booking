@@ -2,6 +2,8 @@ package com.example.hotelbookingapp.service;
 
 import com.example.hotelbookingapp.dto.AuthResponse;
 import com.example.hotelbookingapp.dto.LoginRequest;
+import com.example.hotelbookingapp.dto.RegistrationRequest;
+import com.example.hotelbookingapp.enums.Role;
 import com.example.hotelbookingapp.model.User;
 import com.example.hotelbookingapp.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -29,6 +31,23 @@ public class AuthService {
         String token = jwtService.generateToken(user);
 
         return new AuthResponse(token);
+
+    }
+
+    public void register(RegistrationRequest request) {
+
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new RuntimeException("Email already exists.");
+        }
+
+        User user = User.builder()
+                .name(request.name())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .role(Role.USER)
+                .build();
+
+        userRepository.save(user);
 
     }
 

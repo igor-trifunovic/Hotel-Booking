@@ -9,6 +9,8 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
@@ -17,7 +19,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JWTService {
 
-    private static final String SECRET_KEY = "my-secret-signing-token-key";
+    private static final Key SIGNING_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     private static final long EXPIRATION = 1000 * 60 * 60 * 24;
 
@@ -45,9 +47,7 @@ public class JWTService {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-
-        return Keys.hmacShaKeyFor(keyBytes);
+        return SIGNING_KEY;
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

@@ -29,18 +29,10 @@ public class JWTFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
-
-        if (path.startsWith("/api/auth") || path.startsWith("/api/hotels")
-            || path.startsWith("/api/rooms") || path.startsWith("/api/availability")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -61,12 +53,10 @@ public class JWTFilter extends OncePerRequestFilter {
                         );
 
                 authToken.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
+                        new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authToken);
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 

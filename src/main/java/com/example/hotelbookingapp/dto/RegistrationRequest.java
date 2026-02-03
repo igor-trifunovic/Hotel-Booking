@@ -1,12 +1,9 @@
 package com.example.hotelbookingapp.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+public record RegistrationRequest(
 
-@Getter @Setter
-public class RegistrationRequest {
+        String name,
+        String email,
+        String password
 
-    public String email;
-    public String password;
-
-}
+) {}
