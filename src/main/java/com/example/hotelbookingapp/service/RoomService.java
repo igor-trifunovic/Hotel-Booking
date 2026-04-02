@@ -1,5 +1,6 @@
 package com.example.hotelbookingapp.service;
 
+import com.example.hotelbookingapp.dto.CreateRoomRequest;
 import com.example.hotelbookingapp.model.Hotel;
 import com.example.hotelbookingapp.model.Room;
 import com.example.hotelbookingapp.repository.HotelRepository;
@@ -17,17 +18,26 @@ public class RoomService {
         this.roomRepository = roomRepository;
         this.hotelRepository = hotelRepository;
     }
-
-    public Room save(Room room) {
-        Long hotelId = room.getHotel().getId();
-        Hotel hotel = hotelRepository.findById(hotelId)
-                .orElseThrow(() -> new RuntimeException("Hotel not found!"));
-        room.setHotel(hotel);
-        return roomRepository.save(room);
-    }
-
+    
     public List<Room> getRoomsByHotel(Long hotelId) {
         return roomRepository.findByHotelId(hotelId);
+    }
+
+    public Room createRoom(CreateRoomRequest request) {
+        // Find hotel by hotelId
+        Hotel hotel = hotelRepository.findById(request.hotelId())
+                .orElseThrow(() -> new RuntimeException("Hotel not found."));
+
+        // Create new room
+        Room room = new Room();
+        room.setRoomNumber(request.roomNumber());
+        room.setPrice(request.roomPrice());
+
+        // Connect room with the hotel via JPA
+        room.setHotel(hotel);
+
+        // Save room to database
+        return roomRepository.save(room);
     }
 
 }

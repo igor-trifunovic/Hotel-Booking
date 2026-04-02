@@ -1,5 +1,6 @@
 package com.example.hotelbookingapp.controller;
 
+import com.example.hotelbookingapp.dto.CreateRoomRequest;
 import com.example.hotelbookingapp.model.Room;
 import com.example.hotelbookingapp.service.RoomService;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +17,8 @@ public class RoomController {
     }
 
     @PostMapping
-    public Room createRoom(@RequestBody Room room) {
-        return roomService.save(room);
+    public Room createRoom(@RequestBody CreateRoomRequest request) {
+        return roomService.createRoom(request);
     }
 
     @GetMapping

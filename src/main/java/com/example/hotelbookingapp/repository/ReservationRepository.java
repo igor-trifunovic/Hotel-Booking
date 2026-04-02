@@ -17,6 +17,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         AND r.checkOutDate > :checkIn
         AND r.checkInDate < :checkOut
     """)
+
     boolean existsConflictingReservation(
         @Param("roomId") Long roomId,
         @Param("checkIn")LocalDate checkIn,
@@ -24,5 +25,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     );
 
     List<Reservation> findByRoomHotelId(Long hotelId);
+
+    List<Reservation> findByUserEmail(String email);
 
 }

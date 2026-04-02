@@ -1,9 +1,12 @@
 package com.example.hotelbookingapp.service;
 
+import com.example.hotelbookingapp.dto.ReservationRequest;
 import com.example.hotelbookingapp.enums.ReservationStatus;
 import com.example.hotelbookingapp.model.*;
 import com.example.hotelbookingapp.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -93,6 +96,40 @@ public class ReservationService {
         if (exists) {
             throw new RuntimeException("Room is already booked for selected period.");
         }
+    }
+
+    public Reservation createReservation(ReservationRequest request) {
+        boolean hasConflict = !reservationRepository
+                .existsConflictingReservation(
+                    request.getRoomId(),
+                    request.getCheckInDate(),
+                    request.getCheckOutDate()
+                );
+        if (hasConflict) throw new RuntimeException("Room already booked!");
+
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Room not found."));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+
+        Reservation reservation = new Reservation();
+        reservation.setRoom(room);
+        reservation.setUser(user);
+        reservation.setCheckInDate(request.getCheckInDate());
+        reservation.setCheckOutDate(request.getCheckOutDate());
+
+        return reservationRepository.save(reservation);
+    }
+
+    public List<Reservation> getMyReservations() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        return reservationRepository.findByUserEmail(email);
     }
 
 }

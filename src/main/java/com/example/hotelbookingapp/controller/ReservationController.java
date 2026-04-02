@@ -18,13 +18,8 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public Reservation create(@RequestBody ReservationRequest request) {
-        return reservationService.createReservation(
-            request.getUserId(),
-            request.getRoomId(),
-            request.getCheckInDate(),
-            request.getCheckOutDate()
-        );
+    public Reservation createReservation(@RequestBody ReservationRequest request) {
+        return reservationService.createReservation(request);
     }
 
     @GetMapping
@@ -39,8 +34,13 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public void cancel(@PathVariable Long id, @RequestParam Long userId) {
+    public void cancelReservation(@PathVariable Long id, @RequestParam Long userId) {
         reservationService.cancelReservation(id, userId);
+    }
+
+    @GetMapping("/me")
+    public List<Reservation> getMyReservations() {
+        return reservationService.getMyReservations();
     }
 
 }

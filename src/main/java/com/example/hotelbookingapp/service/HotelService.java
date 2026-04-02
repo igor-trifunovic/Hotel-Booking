@@ -23,4 +23,9 @@ public class HotelService {
         return hotelRepository.findAll();
     }
 
+    public Hotel getById(Long id) {
+        return hotelRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hotel not found."));
+    }
+
 }

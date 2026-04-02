@@ -28,7 +28,8 @@ public class Reservation {
     @JoinColumn(name = "room_id")
     private Room room;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Enumerated(EnumType.STRING)
