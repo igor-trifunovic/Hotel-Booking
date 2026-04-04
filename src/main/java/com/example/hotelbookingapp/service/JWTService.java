@@ -3,14 +3,12 @@ package com.example.hotelbookingapp.service;
 import com.example.hotelbookingapp.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -23,31 +21,17 @@ public class JWTService {
     private static final long EXPIRATION = 1000 * 60 * 60 * 24;
 
     public String generateToken(User user) {
-
         return Jwts.builder()
-                .setSubject(user.getEmail())
+                .subject(user.getEmail())
                 .claim("role", user.getRole().name())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(getSignInKey())
                 .compact();
     }
 
     public String extractUserName(String token) {
-        return getClaims(token).getSubject();
-    }
-
-    private Claims getClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
-
-    private Key getSignInKey() {
-        return Keys.hmacShaKeyFor
-                (Decoders.BASE64.decode(secret));
+        return extractClaim(token, Claims::getSubject);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -69,11 +53,15 @@ public class JWTService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
+        return Jwts.parser()
+                .verifyWith(getSignInKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    private SecretKey getSignInKey() {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
 }
