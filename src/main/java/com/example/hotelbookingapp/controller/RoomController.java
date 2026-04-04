@@ -22,7 +22,7 @@ public class RoomController {
     }
 
     @GetMapping
-    public List<Room> getRooms(@RequestParam(required = false) Long hotelId) {
+    public List<Room> getRooms(@RequestParam Long hotelId) {
         return roomService.getRoomsByHotel(hotelId);
     }
 

@@ -11,10 +11,4 @@ public class ReservationRequest {
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
 
-    public record CreateReservationRequest(
-         Long roomId,
-         LocalDate checkInDate,
-         LocalDate checkOutDate
-    ) {}
-
 }

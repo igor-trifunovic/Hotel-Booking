@@ -1,10 +1,10 @@
 package com.example.hotelbookingapp.config;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -24,20 +24,25 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(CorsProperties.class)
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JWTFilter jwtFilter;
 
+    @Autowired
+    public SecurityConfig(@Lazy JWTFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
+    }
+
     @Value("${app.cors.allowed.origins}")
     private String allowedOrigins;
 
+    //
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Filters user rights depending on the role
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -52,6 +57,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/reservations/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
@@ -60,6 +66,7 @@ public class SecurityConfig {
                 .build();
     }
 
+    //
     @Bean
     public AuthenticationManager authenticationManager(
                     AuthenticationConfiguration config) throws Exception {

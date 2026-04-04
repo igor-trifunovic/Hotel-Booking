@@ -92,6 +92,8 @@ public class ReservationService {
 
     // Get all reservations for the specific hotel
     public List<Reservation> getReservationsByHotel(Long hotelId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         return reservationRepository.findByRoomHotelId(hotelId);
     }
 

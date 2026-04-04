@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter @Setter
 @NoArgsConstructor
@@ -18,7 +20,7 @@ public class Room {
     private Long id;
 
     private String roomNumber;
-    private double price;
+    private BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name = "hotel_id")
