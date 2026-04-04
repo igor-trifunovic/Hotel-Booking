@@ -4,7 +4,6 @@ import com.example.hotelbookingapp.dto.HotelSearchResponse;
 import com.example.hotelbookingapp.model.Hotel;
 import com.example.hotelbookingapp.model.Room;
 import com.example.hotelbookingapp.repository.HotelRepository;
-import com.example.hotelbookingapp.repository.ReservationRepository;
 import com.example.hotelbookingapp.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

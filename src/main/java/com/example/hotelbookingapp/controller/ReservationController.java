@@ -2,7 +2,6 @@ package com.example.hotelbookingapp.controller;
 
 import com.example.hotelbookingapp.dto.ReservationRequest;
 import com.example.hotelbookingapp.dto.ReservationResponse;
-import com.example.hotelbookingapp.model.Reservation;
 import com.example.hotelbookingapp.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
