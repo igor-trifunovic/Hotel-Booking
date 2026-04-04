@@ -21,44 +21,43 @@ public class ReservationService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
 
-    // Creates a new reservation
-    public Reservation createReservation
-            (Long userId, Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
-        if (reservationRepository.existsConflictingReservation(roomId, checkInDate, checkOutDate)) {
-            throw new IllegalArgumentException("Invalid date range.");
+    // Create a new reservation
+    public Reservation createReservation(ReservationRequest request) {
+        if(reservationRepository.existsConflictingReservation(
+            request.getRoomId(),
+            request.getCheckInDate(),
+            request.getCheckOutDate()
+        )) {
+            throw new RuntimeException("Room already booked.");
         }
 
-        Room room = roomRepository.findById(roomId)
+        Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found."));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
 
-        checkOverlapping(roomId, checkInDate, checkOutDate);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found."));
 
-        long numberOfNights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-
-        double totalReservationPrice = numberOfNights * room.getPrice();
+        long numberOfNights = ChronoUnit.DAYS.between(
+                request.getCheckInDate(), request.getCheckOutDate());
 
         Reservation reservation = new Reservation();
-        reservation.setUser(user);
         reservation.setRoom(room);
-        reservation.setCheckInDate(checkInDate);
-        reservation.setCheckOutDate(checkOutDate);
+        reservation.setUser(user);
+        reservation.setCheckInDate(request.getCheckInDate());
+        reservation.setCheckOutDate(request.getCheckOutDate());
         reservation.setReservationStatus(ReservationStatus.CREATED);
         reservation.setDateCreated(LocalDateTime.now());
-        reservation.setTotalPrice(totalReservationPrice);
+        reservation.setTotalPrice(numberOfNights * room.getPrice());
 
         return reservationRepository.save(reservation);
     }
 
-    // Gets all reservations that belong to one hotel
-    public List<Reservation> getReservationsByHotel(Long hotelId) {
-        return reservationRepository.findByRoomHotelId(hotelId);
-    }
-
-    // Updates reservation
-    public Reservation updateReservation(Long reservationId, LocalDate checkInDate, LocalDate checkOutDate) {
+    // Update reservation
+    public Reservation updateReservation(
+            Long reservationId, LocalDate checkInDate, LocalDate checkOutDate) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found."));
 
@@ -75,56 +74,28 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    //Cancels reservation
-    public void cancelReservation(Long reservationId, Long userId) {
-        Reservation reservation = reservationRepository
-                    .findById(reservationId)
-                    .orElseThrow();
-
-        if (!reservation.getUser().getId().equals(userId)) {
-            throw new SecurityException("Forbidden");
-        }
-
-        reservation.setReservationStatus(ReservationStatus.CANCELLED);
-    }
-
-    // Checks if there are any reservations for the same period of time
-    public void checkOverlapping(Long roomId, LocalDate checkIn, LocalDate checkOut) {
-        boolean exists = !reservationRepository.existsConflictingReservation
-                (roomId, checkIn, checkOut);
-
-        if (exists) {
-            throw new RuntimeException("Room is already booked for selected period.");
-        }
-    }
-
-    public Reservation createReservation(ReservationRequest request) {
-        boolean hasConflict = !reservationRepository
-                .existsConflictingReservation(
-                    request.getRoomId(),
-                    request.getCheckInDate(),
-                    request.getCheckOutDate()
-                );
-        if (hasConflict) throw new RuntimeException("Room already booked!");
-
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new RuntimeException("Room not found."));
+    //Cancel reservation
+    public void cancelReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                    .orElseThrow(() -> new RuntimeException("Reservation not found."));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found."));
+        if (!reservation.getUser().getEmail().equals(email)) {
+            throw new SecurityException("Forbidden");
+        }
 
-        Reservation reservation = new Reservation();
-        reservation.setRoom(room);
-        reservation.setUser(user);
-        reservation.setCheckInDate(request.getCheckInDate());
-        reservation.setCheckOutDate(request.getCheckOutDate());
-
-        return reservationRepository.save(reservation);
+        reservation.setReservationStatus(ReservationStatus.CANCELLED);
+        reservationRepository.save(reservation);
     }
 
+    // Get all reservations for the specific hotel
+    public List<Reservation> getReservationsByHotel(Long hotelId) {
+        return reservationRepository.findByRoomHotelId(hotelId);
+    }
+
+    // Get all reservations that belong to specific user
     public List<Reservation> getMyReservations() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();

@@ -48,9 +48,8 @@ public class SearchService {
         }).toList();
     }
 
-    public boolean isRoomAvailable
-            (Long roomId, LocalDate checkIn, LocalDate checkOut) {
-        return reservationRepository
+    public boolean isRoomAvailable(Long roomId, LocalDate checkIn, LocalDate checkOut) {
+        return !reservationRepository
                .existsConflictingReservation(roomId, checkIn, checkOut);
     }
 
