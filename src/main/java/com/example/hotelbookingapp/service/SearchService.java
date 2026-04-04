@@ -9,8 +9,11 @@ import com.example.hotelbookingapp.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,18 +28,26 @@ public class SearchService {
             LocalDate checkIn,
             LocalDate checkOut
     ) {
+        // Query to find matching hotels
         List<Hotel> hotels = hotelRepository.findByNameOrLocation(query, query);
+        if (hotels.isEmpty()) return List.of();
+
+        List<Long> hotelIDs = hotels.stream().map(Hotel::getId).toList();
+
+        // Query to find all available rooms for all matching hotels
+        Map<Long, List<Room>> availableRoomsByHotel = roomRepository
+                .findAvailableRoomsForHotels(hotelIDs, checkIn, checkOut)
+                .stream()
+                .collect(Collectors.groupingBy(room -> room.getHotel().getId()));
 
         return hotels.stream().map(hotel -> {
-            List<Room> rooms = roomRepository.findByHotelId(hotel.getId());
-            List<Room> availableRooms = rooms.stream().
-                    filter(room -> isRoomAvailable(room.getId(), checkIn, checkOut))
-                    .toList();
+            List<Room> availableRooms = availableRoomsByHotel
+                    .getOrDefault(hotel.getId(), List.of());
 
-            double minPrice = availableRooms.stream()
-                    .mapToDouble(Room::getPrice)
-                    .min()
-                    .orElse(0);
+            BigDecimal minPrice = availableRooms.stream()
+                    .map(Room::getPrice)
+                    .min(BigDecimal::compareTo)
+                    .orElse(BigDecimal.ZERO);
 
             return new HotelSearchResponse(
                     hotel.getId(),
@@ -46,11 +57,6 @@ public class SearchService {
                     minPrice
             );
         }).toList();
-    }
-
-    public boolean isRoomAvailable(Long roomId, LocalDate checkIn, LocalDate checkOut) {
-        return !reservationRepository
-               .existsConflictingReservation(roomId, checkIn, checkOut);
     }
 
 }

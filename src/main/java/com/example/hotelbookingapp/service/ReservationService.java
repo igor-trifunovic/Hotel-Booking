@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -50,7 +52,7 @@ public class ReservationService {
         reservation.setCheckOutDate(request.getCheckOutDate());
         reservation.setReservationStatus(ReservationStatus.CREATED);
         reservation.setDateCreated(LocalDateTime.now());
-        reservation.setTotalPrice(numberOfNights * room.getPrice());
+        reservation.setTotalPrice(room.getPrice().multiply(BigDecimal.valueOf(numberOfNights)));
 
         return reservationRepository.save(reservation);
     }
@@ -65,7 +67,8 @@ public class ReservationService {
 
         if (numberOfNights <= 0) throw new IllegalArgumentException("Invalid date range.");
 
-        double newTotalReservationPrice = numberOfNights * reservation.getRoom().getPrice();
+        BigDecimal newTotalReservationPrice = reservation.getRoom().getPrice()
+                .multiply(BigDecimal.valueOf(numberOfNights));
 
         reservation.setCheckInDate(checkInDate);
         reservation.setCheckOutDate(checkOutDate);

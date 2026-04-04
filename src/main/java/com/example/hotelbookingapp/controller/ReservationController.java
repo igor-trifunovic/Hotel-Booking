@@ -3,6 +3,7 @@ package com.example.hotelbookingapp.controller;
 import com.example.hotelbookingapp.dto.ReservationRequest;
 import com.example.hotelbookingapp.model.Reservation;
 import com.example.hotelbookingapp.service.ReservationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public Reservation createReservation(@RequestBody ReservationRequest request) {
+    public Reservation createReservation(@RequestBody @Valid ReservationRequest request) {
         return reservationService.createReservation(request);
     }
 
@@ -28,7 +29,7 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}")
-    public Reservation updateReservation(@PathVariable Long id, @RequestBody ReservationRequest request) {
+    public Reservation updateReservation(@PathVariable Long id, @RequestBody @Valid ReservationRequest request) {
         return reservationService.updateReservation
                 (id, request.getCheckInDate(), request.getCheckOutDate());
     }
