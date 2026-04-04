@@ -21,7 +21,6 @@ public class SearchService {
 
     private final HotelRepository hotelRepository;
     private final RoomRepository roomRepository;
-    private final ReservationRepository reservationRepository;
 
     public List<HotelSearchResponse> search(
             String query,
