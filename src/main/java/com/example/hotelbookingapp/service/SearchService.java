@@ -43,7 +43,7 @@ public class SearchService {
                     .getOrDefault(hotel.getId(), List.of());
 
             BigDecimal minPrice = availableRooms.stream()
-                    .map(Room::getPrice)
+                    .map(Room::getRoomPrice)
                     .min(BigDecimal::compareTo)
                     .orElse(BigDecimal.ZERO);
 

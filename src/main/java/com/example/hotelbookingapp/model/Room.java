@@ -1,5 +1,6 @@
 package com.example.hotelbookingapp.model;
 
+import com.example.hotelbookingapp.enums.RoomType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,12 @@ public class Room {
     private Long id;
 
     private String roomNumber;
-    private BigDecimal price;
+
+    @Enumerated(EnumType.STRING)
+    private RoomType roomType;
+
+    @Column(name = "price")
+    private BigDecimal roomPrice;
 
     @ManyToOne
     @JoinColumn(name = "hotel_id")

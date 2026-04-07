@@ -5,20 +5,18 @@ import com.example.hotelbookingapp.model.Room;
 
 import java.math.BigDecimal;
 
-public record RoomResponse(
-    Long id,
+public record AvailableRoomResponse(
+    Long roomId,
     String roomNumber,
     RoomType roomType,
-    BigDecimal roomPrice,
-    Long hotelId
+    BigDecimal price
 ) {
-    public static RoomResponse from(Room room) {
-        return new RoomResponse(
+    public static AvailableRoomResponse from(Room room) {
+        return new AvailableRoomResponse(
             room.getId(),
             room.getRoomNumber(),
             room.getRoomType(),
-            room.getRoomPrice(),
-            room.getHotel().getId()
+            room.getRoomPrice()
         );
     }
 }

@@ -52,7 +52,7 @@ public class ReservationService {
         reservation.setCheckOutDate(request.getCheckOutDate());
         reservation.setReservationStatus(ReservationStatus.CREATED);
         reservation.setDateCreated(LocalDateTime.now());
-        reservation.setTotalPrice(room.getPrice().multiply(BigDecimal.valueOf(numberOfNights)));
+        reservation.setTotalPrice(room.getRoomPrice().multiply(BigDecimal.valueOf(numberOfNights)));
 
         return reservationRepository.save(reservation);
     }
@@ -67,7 +67,7 @@ public class ReservationService {
 
         if (numberOfNights <= 0) throw new IllegalArgumentException("Invalid date range.");
 
-        BigDecimal newTotalReservationPrice = reservation.getRoom().getPrice()
+        BigDecimal newTotalReservationPrice = reservation.getRoom().getRoomPrice()
                 .multiply(BigDecimal.valueOf(numberOfNights));
 
         reservation.setCheckInDate(checkInDate);

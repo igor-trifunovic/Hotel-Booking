@@ -31,7 +31,8 @@ public class RoomService {
         // Create new room
         Room room = new Room();
         room.setRoomNumber(request.roomNumber());
-        room.setPrice(request.roomPrice());
+        room.setRoomType(request.roomType());
+        room.setRoomPrice(request.price());
 
         // Connect room with the hotel via JPA
         room.setHotel(hotel);

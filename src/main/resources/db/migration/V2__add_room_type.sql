@@ -1,0 +1,3 @@
+ALTER TABLE room
+    ADD COLUMN room_type VARCHAR(20) NOT NULL DEFAULT 'SINGLE_BED'
+        AFTER room_number;

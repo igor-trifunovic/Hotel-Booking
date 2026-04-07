@@ -1,6 +1,7 @@
 package com.example.hotelbookingapp.model;
 
 import com.example.hotelbookingapp.enums.ReservationStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

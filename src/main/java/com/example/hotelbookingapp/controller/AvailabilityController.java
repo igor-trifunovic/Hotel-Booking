@@ -1,8 +1,11 @@
 package com.example.hotelbookingapp.controller;
 
+import com.example.hotelbookingapp.dto.AvailableRoomResponse;
 import com.example.hotelbookingapp.model.Room;
 import com.example.hotelbookingapp.service.AvailabilityService;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,16 +21,16 @@ public class AvailabilityController {
     }
 
     @GetMapping
-    public List<Long> getAvailableRoomsForHotel(
+    public List<AvailableRoomResponse> getAvailableRoomsForHotel(
             @RequestParam Long hotelId,
             @RequestParam LocalDate checkIn,
             @RequestParam LocalDate checkOut
     ) {
         return availabilityService
-                .getAvailableRooms(hotelId, checkIn, checkOut)
-                .stream()
-                .map(Room::getId)
-                .toList();
+            .getAvailableRooms(hotelId, checkIn, checkOut)
+            .stream()
+            .map(AvailableRoomResponse::from)
+            .toList();
     }
 
 }
