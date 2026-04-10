@@ -28,7 +28,8 @@ public class ReservationService {
         if(reservationRepository.existsConflictingReservation(
             request.getRoomId(),
             request.getCheckInDate(),
-            request.getCheckOutDate()
+            request.getCheckOutDate(),
+            ReservationStatus.CANCELLED
         )) {
             throw new RuntimeException("Room already booked.");
         }

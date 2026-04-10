@@ -1,5 +1,6 @@
 package com.example.hotelbookingapp.service;
 
+import com.example.hotelbookingapp.enums.ReservationStatus;
 import com.example.hotelbookingapp.model.Room;
 import com.example.hotelbookingapp.repository.ReservationRepository;
 import com.example.hotelbookingapp.repository.RoomRepository;
@@ -16,13 +17,13 @@ public class AvailabilityService {
     private final RoomRepository roomRepository;
 
     public List<Room> getAvailableRooms(
-            Long hotelId, LocalDate checkIn, LocalDate checkOut) {
+            Long hotelId, LocalDate checkIn, LocalDate checkOut, ReservationStatus status) {
         List<Room> rooms = roomRepository.findByHotelId(hotelId);
 
         // Checks if there are overlapping reservations
         return rooms.stream()
                     .filter(room -> !reservationRepository
-                    .existsConflictingReservation(room.getId(), checkIn, checkOut))
+                    .existsConflictingReservation(room.getId(), checkIn, checkOut, status))
                     .toList();
     }
 

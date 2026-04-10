@@ -1,5 +1,6 @@
 package com.example.hotelbookingapp.repository;
 
+import com.example.hotelbookingapp.enums.ReservationStatus;
 import com.example.hotelbookingapp.model.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,14 +15,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         SELECT COUNT(r) > 0
         from Reservation r
         WHERE r.room.id = :roomId
+        AND r.reservationStatus != :cancelledStatus
         AND r.checkOutDate > :checkIn
         AND r.checkInDate < :checkOut
     """)
 
     boolean existsConflictingReservation(
         @Param("roomId") Long roomId,
-        @Param("checkIn")LocalDate checkIn,
-        @Param("checkOut")LocalDate checkOut
+        @Param("checkIn") LocalDate checkIn,
+        @Param("checkOut") LocalDate checkOut,
+        @Param("cancelledStatus") ReservationStatus cancelledStatus
     );
 
     List<Reservation> findByRoomHotelId(Long hotelId);

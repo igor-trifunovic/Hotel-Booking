@@ -1,6 +1,7 @@
 package com.example.hotelbookingapp.controller;
 
 import com.example.hotelbookingapp.dto.AvailableRoomResponse;
+import com.example.hotelbookingapp.enums.ReservationStatus;
 import com.example.hotelbookingapp.model.Room;
 import com.example.hotelbookingapp.service.AvailabilityService;
 import org.springframework.web.bind.annotation.*;
@@ -24,10 +25,11 @@ public class AvailabilityController {
     public List<AvailableRoomResponse> getAvailableRoomsForHotel(
             @RequestParam Long hotelId,
             @RequestParam LocalDate checkIn,
-            @RequestParam LocalDate checkOut
-    ) {
+            @RequestParam LocalDate checkOut,
+            @RequestParam ReservationStatus status
+            ) {
         return availabilityService
-            .getAvailableRooms(hotelId, checkIn, checkOut)
+            .getAvailableRooms(hotelId, checkIn, checkOut, status)
             .stream()
             .map(AvailableRoomResponse::from)
             .toList();
