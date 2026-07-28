@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,6 +25,7 @@ public class ReservationService {
     private final UserRepository userRepository;
 
     // Create a new reservation
+    @Transactional
     public Reservation createReservation(ReservationRequest request) {
         if(reservationRepository.existsConflictingReservation(
             request.getRoomId(),
@@ -46,6 +48,9 @@ public class ReservationService {
         long numberOfNights = ChronoUnit.DAYS.between(
                 request.getCheckInDate(), request.getCheckOutDate());
 
+        if (numberOfNights <= 0)
+            throw new IllegalArgumentException("Check-out date must be after check-in date.");
+
         Reservation reservation = new Reservation();
         reservation.setRoom(room);
         reservation.setUser(user);
@@ -59,14 +64,24 @@ public class ReservationService {
     }
 
     // Update reservation
+    @Transactional
     public Reservation updateReservation(
             Long reservationId, LocalDate checkInDate, LocalDate checkOutDate) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found."));
 
+        verifyOwnership(reservation);
+
         long numberOfNights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
         if (numberOfNights <= 0) throw new IllegalArgumentException("Invalid date range.");
+
+        // Conflict check: ensure the new dates don't overlap another active reservation
+        if (reservationRepository.existsConflictingReservationExcludingSelf(
+                reservation.getRoom().getId(), checkInDate, checkOutDate,
+                ReservationStatus.CANCELLED, reservationId)) {
+            throw new IllegalArgumentException("Room is already booked for the selected dates.");
+        }
 
         BigDecimal newTotalReservationPrice = reservation.getRoom().getRoomPrice()
                 .multiply(BigDecimal.valueOf(numberOfNights));
@@ -79,19 +94,25 @@ public class ReservationService {
     }
 
     //Cancel reservation
+    @Transactional
     public void cancelReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                     .orElseThrow(() -> new RuntimeException("Reservation not found."));
 
+        verifyOwnership(reservation);
+
+        reservation.setReservationStatus(ReservationStatus.CANCELLED);
+        reservationRepository.save(reservation);
+    }
+
+    // Verifies that the currently authenticated user owns the reservation
+    private void verifyOwnership(Reservation reservation) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
         if (!reservation.getUser().getEmail().equals(email)) {
             throw new SecurityException("Forbidden");
         }
-
-        reservation.setReservationStatus(ReservationStatus.CANCELLED);
-        reservationRepository.save(reservation);
     }
 
     // Get all reservations for the specific hotel

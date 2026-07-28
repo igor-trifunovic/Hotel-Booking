@@ -1,6 +1,7 @@
 package com.example.hotelbookingapp.dto;
 
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,10 +10,11 @@ import java.time.LocalDate;
 @Getter @Setter
 public class ReservationRequest {
 
+    @NotNull(message = "Room ID is required.")
     private Long roomId;
 
     @NotNull(message = "Check-in date is required.")
-    @Future(message = "Check-in date must be in the future.")
+    @FutureOrPresent(message = "Check-in date cannot be in the past.")
     private LocalDate checkInDate;
 
     @NotNull(message = "Check-out date is required.")
