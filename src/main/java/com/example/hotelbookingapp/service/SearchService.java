@@ -51,6 +51,8 @@ public class SearchService {
                     hotel.getId(),
                     hotel.getName(),
                     hotel.getLocation(),
+                    hotel.getDescription(),
+                    hotel.getImageURL(),
                     availableRooms.size(),
                     minPrice
             );

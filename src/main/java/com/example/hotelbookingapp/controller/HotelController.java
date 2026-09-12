@@ -1,8 +1,10 @@
 package com.example.hotelbookingapp.controller;
 
 import com.example.hotelbookingapp.dto.HotelResponse;
+import com.example.hotelbookingapp.dto.HotelSuggestionResponse;
 import com.example.hotelbookingapp.model.Hotel;
 import com.example.hotelbookingapp.service.HotelService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -34,4 +36,8 @@ public class HotelController {
         return HotelResponse.from(hotelService.getById(id));
     }
 
+    @GetMapping("/suggestions")
+    public ResponseEntity<List<HotelSuggestionResponse>> getSuggestions(@RequestParam String query) {
+        return ResponseEntity.ok(hotelService.getSuggestions(query));
+    }
 }
