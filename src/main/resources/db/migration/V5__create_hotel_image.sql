@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS hotel_image (
     sort_order INT          NOT NULL DEFAULT 0,
     -- Declared before the FK so MySQL reuses it instead of adding its own hotel_id index.
     INDEX idx_hotel_image_hotel (hotel_id, sort_order),
-    CONSTRAINT fk_hotel_image_hotel FOREIGN KEY (hotel_id) REFERENCES hotel_image (hotel_id) ON DELETE CASCADE
+    CONSTRAINT fk_hotel_image_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE
 );
