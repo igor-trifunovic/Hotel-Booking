@@ -17,6 +17,7 @@ public class HotelService {
 
     public Hotel saveHotel(Hotel hotel) {
         hotel.getRooms().forEach(room -> room.setHotel(hotel));
+        hotel.getImages().forEach(image -> image.setHotel(hotel));
         return hotelRepository.save(hotel);
     }
 

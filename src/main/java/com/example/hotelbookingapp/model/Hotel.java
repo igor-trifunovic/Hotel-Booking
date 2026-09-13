@@ -20,6 +20,9 @@ public class Hotel {
     private String name;
     private String location;
     private String description;
+
+    // Explicit name: Hibernate would otherwise map "imageURL" to column "imageurl".
+    @Column(name = "image_url", length = 512)
     private String imageURL;
 
     @OneToMany(
@@ -29,5 +32,14 @@ public class Hotel {
     )
     @JsonManagedReference
     private List<Room> rooms = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "hotel",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @OrderBy("sortOrder ASC")
+    @JsonManagedReference
+    private List<HotelImage> images = new ArrayList<>();
 
 }

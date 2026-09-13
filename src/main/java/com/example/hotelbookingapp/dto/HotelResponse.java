@@ -10,6 +10,7 @@ public record HotelResponse(
     String location,
     String description,
     String imageURL,
+    List<HotelImageResponse> images,
     List<RoomResponse> rooms
 ) {
     public static HotelResponse from(Hotel hotel) {
@@ -19,6 +20,7 @@ public record HotelResponse(
             hotel.getLocation(),
             hotel.getDescription(),
             hotel.getImageURL(),
+            hotel.getImages().stream().map(HotelImageResponse::from).toList(),
             hotel.getRooms().stream().map(RoomResponse::from).toList()
         );
     }
