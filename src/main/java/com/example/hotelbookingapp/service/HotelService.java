@@ -1,7 +1,10 @@
 package com.example.hotelbookingapp.service;
 
+import com.example.hotelbookingapp.dto.CreateHotelRequest;
+import com.example.hotelbookingapp.dto.HotelImageRequest;
 import com.example.hotelbookingapp.dto.HotelSuggestionResponse;
 import com.example.hotelbookingapp.model.Hotel;
+import com.example.hotelbookingapp.model.HotelImage;
 import com.example.hotelbookingapp.repository.HotelRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -15,9 +18,24 @@ public class HotelService {
         this.hotelRepository = hotelRepository;
     }
 
-    public Hotel saveHotel(Hotel hotel) {
-        hotel.getRooms().forEach(room -> room.setHotel(hotel));
-        hotel.getImages().forEach(image -> image.setHotel(hotel));
+    public Hotel createHotel(CreateHotelRequest request) {
+        Hotel hotel = new Hotel();
+        hotel.setName(request.name());
+        hotel.setLocation(request.location());
+        hotel.setDescription(request.description());
+        hotel.setImageURL(request.imageURL());
+
+        if (request.images() != null) {
+            for (int i = 0; i < request.images().size(); i++) {
+                HotelImageRequest source = request.images().get(i);
+                HotelImage image = new HotelImage();
+                image.setImageURL(source.imageURL());
+                image.setSortOrder(source.sortOrder() != null ? source.sortOrder() : i);
+                image.setHotel(hotel);
+                hotel.getImages().add(image);
+            }
+        }
+
         return hotelRepository.save(hotel);
     }
 

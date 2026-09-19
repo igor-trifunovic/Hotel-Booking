@@ -29,7 +29,7 @@ public class SecurityConfig {
     private final JWTFilter jwtFilter;
 
     @Autowired
-    public SecurityConfig(@Lazy JWTFilter jwtFilter) {
+    public SecurityConfig(JWTFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 
@@ -53,7 +53,8 @@ public class SecurityConfig {
                                 "/api/availability/**",
                                 "/api/hotels/**",
                                 "/api/rooms/**",
-                                "/api/search/**"
+                                "/api/search/**",
+                                "/images/**"
                         ).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -67,7 +68,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    //
     @Bean
     public AuthenticationManager authenticationManager(
                     AuthenticationConfiguration config) throws Exception {

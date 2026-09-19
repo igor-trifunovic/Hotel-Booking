@@ -18,26 +18,22 @@ public class RoomService {
         this.roomRepository = roomRepository;
         this.hotelRepository = hotelRepository;
     }
-    
+
     public List<Room> getRoomsByHotel(Long hotelId) {
         return roomRepository.findByHotelId(hotelId);
     }
 
     public Room createRoom(CreateRoomRequest request) {
-        // Find hotel by hotelId
         Hotel hotel = hotelRepository.findById(request.hotelId())
                 .orElseThrow(() -> new RuntimeException("Hotel not found."));
 
-        // Create new room
         Room room = new Room();
         room.setRoomNumber(request.roomNumber());
         room.setRoomType(request.roomType());
         room.setRoomPrice(request.price());
 
-        // Connect room with the hotel via JPA
         room.setHotel(hotel);
 
-        // Save room to database
         return roomRepository.save(room);
     }
 
