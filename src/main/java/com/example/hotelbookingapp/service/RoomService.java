@@ -7,6 +7,7 @@ import com.example.hotelbookingapp.repository.HotelRepository;
 import com.example.hotelbookingapp.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class RoomService {
@@ -25,7 +26,7 @@ public class RoomService {
 
     public Room createRoom(CreateRoomRequest request) {
         Hotel hotel = hotelRepository.findById(request.hotelId())
-                .orElseThrow(() -> new RuntimeException("Hotel not found."));
+                .orElseThrow(() -> new NoSuchElementException("Hotel not found."));
 
         Room room = new Room();
         room.setRoomNumber(request.roomNumber());

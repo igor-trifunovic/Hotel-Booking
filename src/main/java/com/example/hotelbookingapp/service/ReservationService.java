@@ -2,6 +2,7 @@ package com.example.hotelbookingapp.service;
 
 import com.example.hotelbookingapp.dto.ReservationRequest;
 import com.example.hotelbookingapp.enums.ReservationStatus;
+import com.example.hotelbookingapp.exception.ConflictException;
 import com.example.hotelbookingapp.model.*;
 import com.example.hotelbookingapp.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -9,12 +10,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,29 +28,29 @@ public class ReservationService {
     // Create a new reservation
     @Transactional
     public Reservation createReservation(ReservationRequest request) {
+        long numberOfNights = ChronoUnit.DAYS.between(
+                request.getCheckInDate(), request.getCheckOutDate());
+
+        if (numberOfNights <= 0)
+            throw new IllegalArgumentException("Check-out date must be after check-in date.");
+
         if(reservationRepository.existsConflictingReservation(
             request.getRoomId(),
             request.getCheckInDate(),
             request.getCheckOutDate(),
             ReservationStatus.CANCELLED
         )) {
-            throw new RuntimeException("Room already booked.");
+            throw new ConflictException("Room already booked.");
         }
 
         Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new RuntimeException("Room not found."));
+                .orElseThrow(() -> new NoSuchElementException("Room not found with ID: " + request.getRoomId()));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found."));
-
-        long numberOfNights = ChronoUnit.DAYS.between(
-                request.getCheckInDate(), request.getCheckOutDate());
-
-        if (numberOfNights <= 0)
-            throw new IllegalArgumentException("Check-out date must be after check-in date.");
+                .orElseThrow(() -> new NoSuchElementException("User with email " + email + " not found"));
 
         Reservation reservation = new Reservation();
         reservation.setRoom(room);
@@ -68,7 +69,7 @@ public class ReservationService {
     public Reservation updateReservation(
             Long reservationId, LocalDate checkInDate, LocalDate checkOutDate) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found."));
+                .orElseThrow(() -> new NoSuchElementException("Reservation with ID " + reservationId + " not found."));
 
         verifyOwnership(reservation);
 
@@ -80,7 +81,7 @@ public class ReservationService {
         if (reservationRepository.existsConflictingReservationExcludingSelf(
                 reservation.getRoom().getId(), checkInDate, checkOutDate,
                 ReservationStatus.CANCELLED, reservationId)) {
-            throw new IllegalArgumentException("Room is already booked for the selected dates.");
+            throw new ConflictException("Room is already booked for the selected dates.");
         }
 
         BigDecimal newTotalReservationPrice = reservation.getRoom().getRoomPrice()
@@ -97,7 +98,8 @@ public class ReservationService {
     @Transactional
     public void cancelReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                    .orElseThrow(() -> new RuntimeException("Reservation not found."));
+                    .orElseThrow(() -> new NoSuchElementException
+                            ("Reservation with ID " + reservationId + " not found."));
 
         verifyOwnership(reservation);
 
@@ -120,7 +122,7 @@ public class ReservationService {
         return reservationRepository.findByRoomHotelId(hotelId);
     }
 
-    // Get all reservations that belong to specific user
+    // Get all reservations that belong to the specific user
     public List<Reservation> getMyReservations() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();

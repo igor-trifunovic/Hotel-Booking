@@ -8,6 +8,7 @@ import com.example.hotelbookingapp.model.HotelImage;
 import com.example.hotelbookingapp.repository.HotelRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class HotelService {
@@ -45,7 +46,7 @@ public class HotelService {
 
     public Hotel getById(Long id) {
         return hotelRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Hotel not found."));
+                .orElseThrow(() -> new NoSuchElementException("Hotel not found."));
     }
 
     public List<HotelSuggestionResponse> getSuggestions(String query) {

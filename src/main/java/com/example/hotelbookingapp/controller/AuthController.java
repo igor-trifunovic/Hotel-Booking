@@ -5,6 +5,7 @@ import com.example.hotelbookingapp.service.AuthService;
 import com.example.hotelbookingapp.service.PasswordResetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     public void register(@RequestBody @Valid RegistrationRequest request) {
         authService.register(request);
     }

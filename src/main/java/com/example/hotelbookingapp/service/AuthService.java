@@ -4,6 +4,7 @@ import com.example.hotelbookingapp.dto.AuthResponse;
 import com.example.hotelbookingapp.dto.LoginRequest;
 import com.example.hotelbookingapp.dto.RegistrationRequest;
 import com.example.hotelbookingapp.enums.Role;
+import com.example.hotelbookingapp.exception.ConflictException;
 import com.example.hotelbookingapp.model.User;
 import com.example.hotelbookingapp.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -25,7 +26,7 @@ public class AuthService {
 
         if (!passwordEncoder.matches(
                 request.password(), user.getPassword())) {
-            throw new RuntimeException("Credentials don't match.");
+            throw new RuntimeException("Invalid credentials.");
         }
 
         String token = jwtService.generateToken(user);
@@ -37,7 +38,7 @@ public class AuthService {
     public void register(RegistrationRequest request) {
 
         if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new RuntimeException("Email already exists.");
+            throw new ConflictException("Email already exists.");
         }
 
         User user = User.builder()
